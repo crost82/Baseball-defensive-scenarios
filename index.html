@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>9U Defense Playbook</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Nunito:wght@500;700;800&display=swap">
+<style>
+/* Layout: one column, coach's chalkboard diagram as the single dark object; everything else is quiet paper. */
+:root{
+  --bg:#F1F5F0; --surface:#FFFFFF; --ink:#13241A; --ink2:#4B5E52; --line:#D2DDD1;
+  --accent:#1D6B42; --accent-ink:#FFFFFF; --tip-bg:#FFF1B8; --tip-ink:#3B3000;
+  --board:#163326; --board2:#1C4030; --dirt:rgba(214,160,104,.17); --chalk:#F1F4EA;
+  --me:#FFD84A; --mate:#6FE3B0; --throwc:#72C3FF; --runnerc:#FF9A57; --frame:#8B6B45;
+  --f-disp:'Barlow Condensed','Arial Narrow',Impact,sans-serif;
+  --f-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0E1913; --surface:#16251C; --ink:#E7F0E8; --ink2:#A3B7A9; --line:#29402F;
+    --accent:#5ED18D; --accent-ink:#09170F; --tip-bg:#3A3411; --tip-ink:#F6E7A0; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0E1913; --surface:#16251C; --ink:#E7F0E8; --ink2:#A3B7A9; --line:#29402F;
+  --accent:#5ED18D; --accent-ink:#09170F; --tip-bg:#3A3411; --tip-ink:#F6E7A0; color-scheme:dark;
+}
+[hidden]{display:none!important}
+html{-webkit-text-size-adjust:100%;color-scheme:light}
+*{box-sizing:border-box}
+body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.5;padding-inline:16px;padding-block:22px 44px}
+button{font-family:inherit;color:inherit}
+.wrap{max-width:680px;margin:0 auto;display:grid;gap:18px}
+.eyebrow{font:700 14px/1 var(--f-disp);letter-spacing:.16em;text-transform:uppercase;color:var(--accent);margin:0}
+h1{font:800 clamp(2.2rem,9vw,3.1rem)/.98 var(--f-disp);text-wrap:balance;margin:6px 0 10px}
+.lede{color:var(--ink2);margin:0;max-width:52ch}
+.top{display:grid;gap:14px}
+.controls{display:flex;flex-wrap:wrap;gap:12px 16px;align-items:center}
+.mode{display:inline-flex;border:2px solid var(--line);border-radius:999px;background:var(--surface);padding:3px}
+.mode button{border:0;background:none;min-height:42px;padding:0 18px;border-radius:999px;font-weight:800;font-size:.95rem;cursor:pointer;color:var(--ink2)}
+.mode button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
+.progress{flex:1 1 180px;min-width:0;display:grid;gap:6px;font-size:.88rem;font-weight:700;color:var(--ink2)}
+.bar{height:8px;border-radius:99px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--accent);transition:width .3s}
+.pos-grid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.pos-grid button{display:grid;gap:1px;justify-items:center;align-content:center;min-height:74px;padding:8px 2px;background:var(--surface);border:2px solid var(--line);border-radius:12px;cursor:pointer}
+.pos-grid .ab{font:800 24px/1 var(--f-disp)}
+.pos-grid .nm{font-size:11px;font-weight:700;color:var(--ink2)}
+.pos-grid .ct{font-size:11px;font-weight:800;color:var(--ink2);font-variant-numeric:tabular-nums}
+.pos-grid button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.pos-grid button[aria-pressed="true"] .nm,.pos-grid button[aria-pressed="true"] .ct{color:var(--accent-ink)}
+.role{margin:0;font-weight:700;font-size:1.05rem}
+.tabs{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;scroll-snap-type:x proximity}
+.tabs button{flex:none;scroll-snap-align:start;white-space:nowrap;min-height:44px;padding:0 16px;border-radius:999px;border:2px solid var(--line);background:var(--surface);font-weight:800;font-size:.95rem;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg)}
+.play{display:grid;gap:14px;scroll-margin-top:12px}
+.count{font:700 14px/1 var(--f-disp);letter-spacing:.14em;text-transform:uppercase;color:var(--ink2);margin:0}
+h2{font:800 clamp(1.9rem,7.5vw,2.4rem)/1.02 var(--f-disp);margin:0;text-wrap:balance}
+.when{margin:0;color:var(--ink2);font-weight:700}
+.lab{font:700 13px/1 var(--f-disp);letter-spacing:.14em;text-transform:uppercase;color:var(--accent);margin-right:8px}
+.board{background:var(--board);border:5px solid var(--frame);border-radius:12px;padding:8px 8px 12px;display:grid;gap:8px}
+.board svg{display:block;width:100%;height:auto}
+.legend{list-style:none;margin:0;padding:0 4px;display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8rem;font-weight:700;color:var(--chalk)}
+.legend li{display:flex;align-items:center;gap:7px}
+.sw{display:inline-block;width:26px;height:0;border-top:3px solid}
+.sw.hit{border-color:var(--chalk);border-top-style:dashed;border-top-width:2px}
+.sw.run{border-color:var(--me);border-top-width:4px}
+.sw.mate{border-color:var(--mate)}
+.sw.throw{border-color:var(--throwc)}
+.sw.runner{border-color:var(--runnerc);border-top-style:dotted;border-top-width:4px}
+/* SVG field */
+.fair{fill:var(--board2)}
+.dirt{fill:var(--dirt)}
+.ln{stroke:var(--chalk);stroke-width:1.3;fill:none;stroke-opacity:.85;stroke-linejoin:round}
+.edge{stroke:var(--chalk);stroke-width:1;stroke-dasharray:3 3;fill:none;stroke-opacity:.35}
+.bag{fill:var(--chalk)}
+.rn{fill:var(--runnerc);stroke:var(--board);stroke-width:1.2}
+.a{fill:none;stroke-linejoin:round}
+.a-hit{stroke:var(--chalk);stroke-width:1.8;stroke-dasharray:4 3}
+.a-run{stroke:var(--me);stroke-width:2.8}
+.a-mate{stroke:var(--mate);stroke-width:2.4}
+.a-throw{stroke:var(--throwc);stroke-width:2.6}
+.a-runner{stroke:var(--runnerc);stroke-width:2.4;stroke-dasharray:.1 4.2;stroke-linecap:round}
+.mk-hit{fill:var(--chalk)} .mk-run{fill:var(--me)} .mk-mate{fill:var(--mate)} .mk-throw{fill:var(--throwc)} .mk-runner{fill:var(--runnerc)}
+.pc{fill:var(--board);stroke:var(--chalk);stroke-opacity:.5;stroke-width:1.2}
+.ptx{fill:var(--chalk);fill-opacity:.72;font-family:var(--f-disp);font-weight:700;font-size:6.6px;text-anchor:middle;dominant-baseline:central}
+.ring{fill:none;stroke:var(--me);stroke-opacity:.4;stroke-width:2}
+.me .pc{fill:var(--me);stroke:none}
+.me .ptx{fill:#1A2A10;fill-opacity:1;font-size:7.4px;font-weight:800}
+.mate .pc{stroke:var(--mate);stroke-opacity:1;stroke-width:2}
+.mate .ptx{fill:var(--mate);fill-opacity:1}
+/* quiz box, steps, tip */
+.quiz{border:2px dashed var(--ink2);border-radius:12px;padding:16px;display:grid;gap:12px;justify-items:start}
+.quiz p{margin:0;font-weight:700}
+.btn{min-height:48px;padding:0 20px;border-radius:12px;border:2px solid var(--line);background:var(--surface);font-weight:800;font-size:1rem;cursor:pointer}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.steps{list-style:none;margin:0;padding:0;display:grid;gap:12px;counter-reset:s}
+.steps li{counter-increment:s;display:grid;grid-template-columns:36px minmax(0,1fr);gap:12px;align-items:start}
+.steps li::before{content:counter(s);width:36px;height:36px;border-radius:50%;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;font:800 21px/1 var(--f-disp)}
+.steps li span{padding-top:4px}
+.tip{background:var(--tip-bg);color:var(--tip-ink);border-radius:12px;padding:12px 14px;margin:0;font-weight:700}
+.tip .lab{color:inherit;opacity:.75}
+.nav{display:grid;grid-template-columns:1fr 1.5fr 1fr;gap:8px}
+.nav .btn{padding:0 8px}
+.nav .btn[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.nav .btn[disabled]{opacity:.4;cursor:default}
+.note{margin:0;font-size:.88rem;color:var(--ink2)}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header class="top">
+    <div>
+      <p class="eyebrow">9U Defense</p>
+      <h1>Know your job on every play.</h1>
+      <p class="lede">Pick your position. Tap a play. Study the field, then switch to Quiz me and test yourself.</p>
+    </div>
+    <div class="controls">
+      <div class="mode" role="group" aria-label="Mode">
+        <button type="button" id="m-learn" aria-pressed="true">Learn it</button>
+        <button type="button" id="m-quiz" aria-pressed="false">Quiz me</button>
+      </div>
+      <div class="progress"><span id="progText"></span><div class="bar"><i id="progBar"></i></div></div>
+    </div>
+  </header>
+
+  <nav class="pos-grid" id="posGrid" aria-label="Positions"></nav>
+  <p class="role" id="role"></p>
+  <div class="tabs" id="tabs" role="tablist" aria-label="Plays"></div>
+
+  <article class="play" id="play">
+    <p class="count" id="count"></p>
+    <h2 id="title"></h2>
+    <p class="when" id="when"></p>
+    <div class="board">
+      <div id="field"></div>
+      <ul class="legend" aria-label="Legend">
+        <li><span class="sw run"></span>Me</li>
+        <li><span class="sw hit"></span>Ball</li>
+        <li><span class="sw throw"></span>Throw</li>
+        <li><span class="sw mate"></span>Teammate</li>
+        <li><span class="sw runner"></span>Runner</li>
+      </ul>
+    </div>
+    <div class="quiz" id="quiz" hidden>
+      <p>Cover the answer. Where do you go? What do you do? Say it out loud, then check.</p>
+      <button type="button" class="btn primary" id="reveal">Show answer</button>
+    </div>
+    <div id="answer">
+      <ol class="steps" id="steps"></ol>
+    </div>
+    <p class="tip" id="tip"></p>
+    <div class="nav">
+      <button type="button" class="btn" id="prev">‹ Back</button>
+      <button type="button" class="btn" id="learned" aria-pressed="false">I know this play</button>
+      <button type="button" class="btn" id="next">Next ›</button>
+    </div>
+  </article>
+
+  <p class="note">Leagues are different. If your coach teaches a play another way, do it your coach’s way. Stealing plays assume runners are allowed to steal.</p>
+</div>
+
+<script>
+(function(){
+/* ---------- field geometry (viewBox 200 x 210) ---------- */
+var PT={H:[100,170],B1:[142,128],B2:[100,86],B3:[58,128],
+  P:[100,130],C:[100,184],'1B':[158,112],'2B':[122,98],SS:[78,98],'3B':[48,116],
+  LF:[40,70],CF:[100,56],RF:[160,70]};
+var PLAYERS=['P','C','1B','2B','SS','3B','LF','CF','RF'];
+var SH={pl:9.5,base:5.5,xy:0};
+
+/* ---------- play data ---------- */
+function A(t,pts,x){var o={t:t,pts:pts};if(x){for(var k in x)o[k]=x[k];}return o;}
+function hit(p,x){return A('hit',p,x);}
+function run(p,x){return A('run',p,x);}
+function mate(p,x){return A('mate',p,x);}
+function thr(p,x){return A('throw',p,x);}
+function rnr(p,x){return A('runner',p,x);}
+var SIT={s:1};
+
+var POS=[
+{id:'ALL',ab:'ALL',nm:'Everyone',role:'Nine players, one team. These rules are for all of you.',plays:[
+ {id:'align',tab:'Where we stand',title:'Where everybody stands',when:'Before the pitch. Every player is in a starting spot.',
+  arrows:[],
+  steps:['Know your spot. Your coach may move you a little, but this is the **starting place**.',
+   'Get in **ready position**: feet wide, knees bent, glove low and out front.',
+   'Say the **outs** and where you will throw. Example: “One out, throw to first.”',
+   'As the pitcher throws, take a **small hop** so your feet are already moving when the ball is hit.'],
+  tip:'Before every pitch ask yourself: “If it comes to me, where do I throw?”'},
+ {id:'pop',tab:'Who calls it?',title:'Pop-up between two players',when:'A fly ball drops between the shortstop and the left fielder.',me:'LF',involve:['SS'],
+  arrows:[hit(['H',[62,84]],{arc:1}),run(['LF',[58,81]]),mate(['SS',[65,88]])],
+  steps:['Anyone who can reach it yells **“I got it!”** two times. Loud!',
+   '**Outfielders beat infielders.** They run in and can see the ball better.',
+   'The **center fielder beats everyone.**',
+   'Hear someone louder? **Pull off** and yell “Take it!” Two players never go for the same ball.'],
+  tip:'If nobody calls it, the ball hits the ground. Always call it.'},
+ {id:'backup',tab:'Back-up rule',title:'Everyone has a job on every play',when:'Ground ball to third base. The throw goes to first.',
+  arrows:[hit(['H','3B']),thr(['3B','B1'],SIT),mate(['RF',[170,130]]),mate(['LF',[32,102]])],
+  steps:['The ball is hit to the left side, so the throw goes to **first base**. The right fielder runs **behind first base**.',
+   'The left fielder runs **behind third base** in case the ball gets by.',
+   'If the ball is not coming to you, you are **backing up**. Move!'],
+  tip:'Nobody stands still. If it is not hit to you, run to where it could go next.'}
+]},
+{id:'P',ab:'P',nm:'Pitcher',role:'You throw the pitch, then you become a fielder. Be ready after every pitch.',plays:[
+ {id:'back',tab:'Ball back to me',title:'Ground ball back to you',when:'Nobody on base. The ball bounces toward the mound.',me:'P',
+  arrows:[hit(['H','P']),rnr(['H','B1']),thr(['P','B1'])],
+  steps:['Get in front of it. **Glove down**, two hands.',
+   'Catch it first. Then **turn your feet** toward first base.',
+   '**Step** toward first and throw at the first baseman’s chest.'],
+  tip:'Catch first, throw second. A rushed throw makes the runner safe.'},
+ {id:'cover1',tab:'Cover 1st',title:'Cover first base',when:'Ground ball to the right side. The first baseman has to leave the bag.',me:'P',involve:['1B'],
+  arrows:[hit(['H',[132,106]]),rnr(['H','B1']),mate(['1B',[138,110]],SIT),thr([[138,110],'B1'],SIT),run(['P','B1'])],
+  steps:['Break for first base the second the ball goes to the **right side**.',
+   'Run to the **inside corner** of the bag (the side facing the field). The batter runs on the other side.',
+   'Glove up! Yell **“Bag!”** so the first baseman knows you are there.',
+   '**Catch** the ball, then touch the bag with your foot.'],
+  tip:'Ground ball to the right side means the pitcher runs to first. Every time.'},
+ {id:'wild',tab:'Wild pitch',title:'Cover home on a wild pitch',when:'The pitch gets past the catcher. A runner is on third base.',me:'P',involve:['C'],runners:['3'],
+  arrows:[hit(['P',[76,203]]),rnr(['B3','H']),mate(['C',[80,200]]),run(['P','H']),thr([[80,200],'H'])],
+  steps:['Run to **home plate** right away. Do not wait to see what happens.',
+   'Stand at the plate with your **glove up** as a target.',
+   'Catch the catcher’s throw. **Tag the runner** low, on his legs, as he slides.'],
+  tip:'The catcher chases the ball. The pitcher covers home. Never both chase the ball.'},
+ {id:'backhome',tab:'Back up home',title:'Back up the throw home',when:'Base hit to left field. The runner on second is racing for home.',me:'P',runners:['2'],
+  arrows:[hit(['H','LF'],{arc:1}),rnr(['B2','B3','H']),thr(['LF','H'],SIT),run(['P',[118,200]])],
+  steps:['The ball goes to the outfield and **you move too**. Do not just watch.',
+   'Figure out where the throw is going. Runner on second? **Home.**',
+   'Run **behind that base**, in a straight line with the throw. Stay far enough back to catch a bad throw.',
+   'If the throw goes to **third**, back up third instead.'],
+  tip:'Pitchers are the best back-up men. Make it your job.'}
+]},
+{id:'C',ab:'C',nm:'Catcher',role:'You see the whole field. Talk loud and boss the infield.',plays:[
+ {id:'block',tab:'Block it',title:'Pitch in the dirt',when:'The pitch bounces in front of the plate. A runner is on third.',me:'C',runners:['3'],
+  arrows:[hit(['P',[100,164]]),rnr(['B3','H'])],
+  steps:['Drop to your **knees**, fast. Knees go wide in the dirt.',
+   'Put your glove **between your knees**, fingers down, so nothing sneaks through.',
+   '**Chin down**, round your shoulders, chest over the ball.',
+   'Keep the ball **in front of you.** Then find it and look at the runner.'],
+  tip:'You are not trying to catch it. You are trying to block it.'},
+ {id:'passed',tab:'Passed ball',title:'Ball gets by you',when:'The ball rolls to the backstop. A runner is on third.',me:'C',involve:['P'],runners:['3'],
+  arrows:[hit(['P',[76,203]]),rnr(['B3','H']),run(['C',[80,200]]),thr([[80,200],'H']),mate(['P','H'])],
+  steps:['**Pop up** and spin toward the ball. Find it fast.',
+   'Run to it and pick it up with **two hands**.',
+   'Flip or throw to the **pitcher at home plate.** Yell “Here it comes!”'],
+  tip:'The pitcher covers home. The catcher gets the ball. Do not both go to the ball.'},
+ {id:'pop',tab:'Foul pop-up',title:'Foul pop-up',when:'The batter hits the ball straight up behind the plate.',me:'C',
+  arrows:[hit(['H',[128,152]],{arc:1}),run(['C',[124,156]])],
+  steps:['Pop up! **Take your mask off** and toss it away from where you are running.',
+   'Find the ball and **point** at it.',
+   'Foul pop-ups **spin back toward the field.** Go a little toward the field.',
+   '**Two hands**, glove up. Yell “Mine!”'],
+  tip:'Watch for the fence and the bench. Slow down when you get close.'},
+ {id:'steal',tab:'Steal of 2nd',title:'Runner steals second',when:'The runner on first takes off as the pitch is thrown.',me:'C',involve:['SS'],runners:['1'],
+  arrows:[hit(['P','C']),rnr(['B1','B2']),thr(['C','B2']),mate(['SS','B2'])],
+  steps:['**Catch the pitch first.** No catch, no throw.',
+   '**Pop up**, turn, and step toward second.',
+   'Throw hard **at the bag**. Low is best, so the tag is easy.'],
+  tip:'Quick feet and a quick throw beat a big arm.'}
+]},
+{id:'1B',ab:'1B',nm:'1st base',role:'You are the target. Big glove, foot on the bag.',plays:[
+ {id:'target',tab:'Ball to others',title:'Ground ball to someone else',when:'Ground ball to the shortstop. You hold the target.',me:'1B',
+  arrows:[hit(['H','SS']),rnr(['H','B1']),thr(['SS','B1'],SIT),run(['1B','B1'])],
+  steps:['**Run to the bag** as soon as the ball is hit. Do not wait for the throw.',
+   'Put **one foot on the bag.** Turn and face the thrower.',
+   '**Glove up** at chest height. Big target!',
+   '**Stretch** toward the throw with your other foot. Keep your foot on the bag until the ball is in your glove.'],
+  tip:'Be early. Foot on the bag, stretch with the other.'},
+ {id:'mine',tab:'Ball to me',title:'Ground ball to you',when:'Nobody on base. The ball is hit to you, near the bag.',me:'1B',
+  arrows:[hit(['H','1B']),rnr(['H','B1']),run(['1B','B1'])],
+  steps:['Get in front of the ball. **Glove down**, two hands.',
+   'Catch it. **Now** look at the bag.',
+   'Run to the bag and **step on it yourself.** Easy out!',
+   'Bag too far away? Look for the pitcher covering first.'],
+  tip:'Ball in the glove first. Then think about the bag.'},
+ {id:'flip',tab:'Flip to pitcher',title:'Flip it to the pitcher',when:'You had to go far to your right to field it. The bag is empty.',me:'1B',involve:['P'],
+  arrows:[hit(['H',[132,106]]),rnr(['H','B1']),run(['1B',[138,110]]),mate(['P','B1']),thr([[138,110],'B1'])],
+  steps:['Field it with two hands. Then **look for the pitcher** running to first.',
+   'Do not race the runner to the bag. **Trust the pitcher.**',
+   'Give a soft **underhand flip** to his chest when he is near the bag.'],
+  tip:'You and the pitcher are partners. Listen for “Bag!”'},
+ {id:'dirt',tab:'Throw in dirt',title:'The throw bounces',when:'The throw is low and will bounce right before the bag.',me:'1B',
+  arrows:[hit(['H','SS']),thr(['SS',[142,131]],SIT),run(['1B','B1'])],
+  steps:['**Do not bail out.** Keep a foot on the bag and your eyes on the ball.',
+   'Glove **down and out front**, fingers to the dirt.',
+   '**Scoop** it like a shovel. Can’t catch it? **Block it** so it stays in front of you.'],
+  tip:'A bad throw is a team job. Keep the ball in front of you and stay calm.'}
+]},
+{id:'2B',ab:'2B',nm:'2nd base',role:'You cover second base and the right side. Be quick and talk to the shortstop.',plays:[
+ {id:'mine',tab:'Ball to me',title:'Ground ball to you',when:'Nobody on base. The ball is hit right at you.',me:'2B',
+  arrows:[hit(['H','2B']),rnr(['H','B1']),thr(['2B','B1'])],
+  steps:['**Move your feet** to get in front. Glove down.',
+   '**Alligator hands:** glove down, bare hand right behind it. Catch it out front.',
+   '**Turn and step** toward first. Throw to the first baseman’s chest.'],
+  tip:'Feet first, hands second. Never reach for it with just your arm.'},
+ {id:'cover2',tab:'Cover 2nd',title:'Cover second base',when:'Runner on first. Ground ball to the shortstop.',me:'2B',involve:['SS'],runners:['1'],
+  arrows:[hit(['H','SS']),rnr(['B1','B2']),thr(['SS','B2'],SIT),run(['2B','B2']),thr(['B2','B1'])],
+  steps:['Ball to the **left side**? Run to **second base** right away.',
+   'Get to the bag before the ball. **Foot on the bag.**',
+   '**Catch** the throw. Touching the bag with the ball in your glove is the out.',
+   'Now look at first. **Throw** if the batter is still coming!'],
+  tip:'It is a force out. Just touch the bag. No tag needed.'},
+ {id:'relay',tab:'Relay (cutoff)',title:'Hit to right field',when:'The ball rolls to the right fielder. The runner on first is going to third.',me:'2B',runners:['1'],
+  arrows:[hit(['H','RF']),rnr(['B1','B2','B3']),run(['2B',[136,84]]),thr(['RF',[136,84]],SIT),thr([[136,84],'B3'])],
+  steps:['**Run out** into short right field. Stand between the outfielder and the base.',
+   '**Hands up high** so the outfielder can see you. Yell “Hit me!”',
+   '**Catch**, turn, and throw to the base where the runner is going.'],
+  tip:'Line it up: outfielder, you, base.'},
+ {id:'steal',tab:'Steal of 2nd',title:'Runner steals second',when:'The runner on first takes off. Your coach says you cover second.',me:'2B',runners:['1'],
+  arrows:[hit(['P','C']),rnr(['B1','B2']),thr(['C','B2'],SIT),run(['2B','B2'])],
+  steps:['Run to second as the runner takes off. **Get there early.**',
+   'Put your glove **down at the bag**, where the runner will slide.',
+   '**Catch** the ball, then let the runner slide **into** your glove. Hold it there.'],
+  tip:'Not covering? Run behind second to stop wild throws.'}
+]},
+{id:'SS',ab:'SS',nm:'Shortstop',role:'You are the infield captain. Cover second and make the long throw.',plays:[
+ {id:'mine',tab:'Ball to me',title:'Ground ball to you',when:'Nobody on base. The ball is hit to you.',me:'SS',
+  arrows:[hit(['H','SS']),rnr(['H','B1']),thr(['SS','B1'])],
+  steps:['**Shuffle your feet** to get in front. Do not just reach.',
+   '**Alligator hands:** glove down, bare hand right behind it.',
+   'Take a **quick hop** so your feet point at first base.',
+   'Throw **over the top** at the first baseman’s chest.'],
+  tip:'It is a long throw. Use your legs, not just your arm.'},
+ {id:'cover2',tab:'Cover 2nd',title:'Cover second base',when:'Runner on first. Ground ball to the second baseman.',me:'SS',involve:['2B'],runners:['1'],
+  arrows:[hit(['H','2B']),rnr(['B1','B2']),thr(['2B','B2'],SIT),run(['SS','B2']),thr(['B2','B1'])],
+  steps:['Ball to the **right side**? Run to **second base** right away.',
+   'Get to the bag before the ball. **Foot on the bag.**',
+   '**Catch** the throw. Touching the bag with the ball in your glove is the out.',
+   'Now look at first. **Throw** if the batter is still coming!'],
+  tip:'Left side ball: second baseman covers. Right side ball: you cover.'},
+ {id:'relay',tab:'Relay (cutoff)',title:'Hit to deep left',when:'The ball goes over the left fielder. The runner on second is going home.',me:'SS',runners:['2'],
+  arrows:[hit(['H',[34,48]],{arc:1}),rnr(['B2','B3','H']),run(['SS',[56,88]]),thr([[34,48],[56,88]],SIT),thr([[56,88],'H'])],
+  steps:['**Run out** into shallow left field. Stand between the outfielder and home plate.',
+   '**Hands up high** so the outfielder can see you. Yell “Hit me!”',
+   '**Catch**, turn, and throw to the base where the runner is going.'],
+  tip:'Line it up: outfielder, you, base.'},
+ {id:'steal',tab:'Steal of 2nd',title:'Runner steals second',when:'The runner on first takes off. Your coach says you cover second.',me:'SS',runners:['1'],
+  arrows:[hit(['P','C']),rnr(['B1','B2']),thr(['C','B2'],SIT),run(['SS','B2'])],
+  steps:['Run to second as the runner takes off. **Get there early.**',
+   'Put your glove **down at the bag**, where the runner will slide.',
+   '**Catch** the ball, then let the runner slide **into** your glove. Hold it there.'],
+  tip:'Not covering? Run behind second to stop wild throws.'}
+]},
+{id:'3B',ab:'3B',nm:'3rd base',role:'Hard hits and a long throw. Stay low and keep the ball in front.',plays:[
+ {id:'mine',tab:'Ball to me',title:'Ground ball to you',when:'Nobody on base. The ball is hit hard at you.',me:'3B',
+  arrows:[hit(['H','3B']),rnr(['H','B1']),thr(['3B','B1'])],
+  steps:['Stay **low.** Glove down, two hands out front.',
+   'Keep the ball **in front of you.** If it bounces off, pick it up.',
+   '**Step toward first** and throw hard across the diamond. Throw over the top.'],
+  tip:'Bobbled it? Stay calm and pick it up. Do not rush the throw.'},
+ {id:'slow',tab:'Slow roller',title:'Slow roller or bunt',when:'A bunt or slow roller dribbles toward third.',me:'3B',
+  arrows:[hit(['H',[74,138]]),rnr(['H','B1']),run(['3B',[70,134]]),thr([[74,138],'B1'])],
+  steps:['**Charge it!** Run at the ball as soon as you see it is slow.',
+   'Scoop it with your glove and bare hand **together.**',
+   '**Plant** your foot, then throw to first. Do not throw off balance.'],
+  tip:'The pitcher or catcher may yell “Mine!” If they call it, let them have it.'},
+ {id:'pop',tab:'Foul pop-up',title:'Foul pop-up',when:'The batter pops one up in foul ground near third base.',me:'3B',
+  arrows:[hit(['H',[42,146]],{arc:1}),run(['3B',[42,142]])],
+  steps:['Find the ball. Yell **“Mine!”**',
+   '**Run to the spot** where it will land. Look for the fence, the dugout, and the bench.',
+   '**Two hands**, glove up, make the catch.'],
+  tip:'Slow down near the fence. Feel for it with your glove hand.'},
+ {id:'cutoff',tab:'Cutoff home',title:'Be the cutoff man',when:'Base hit to left field. The runner on second is racing for home.',me:'3B',runners:['2'],
+  arrows:[hit(['H','LF'],{arc:1}),rnr(['B2','B3','H']),run(['3B',[68,116]]),thr(['LF',[68,116]],SIT),thr([[68,116],'H'])],
+  steps:['Run into the line between the outfielder and home plate.',
+   'Listen to the **catcher.** He yells “Cut!” or “Let it go!”',
+   '“Cut” means catch it and throw where he says. “Let it go” means let the ball go home.'],
+  tip:'The catcher is the boss on this play. He can see the runners. You cannot.'}
+]},
+{id:'LF',ab:'LF',nm:'Left field',role:'Run down fly balls. Back up third base and the center fielder.',plays:[
+ {id:'fly',tab:'Fly ball',title:'Fly ball to you',when:'The batter hits a fly ball to left field.',me:'LF',
+  arrows:[hit(['H',[56,56]],{arc:1}),run(['LF',[54,58]]),thr([[54,58],'SS'])],
+  steps:['Read it off the bat. Over your head or in front? **Take your first step that way.**',
+   '**Run to the spot.** Get behind the ball so you can step forward as you catch.',
+   'Yell **“I got it!”** Glove up, **two hands.**',
+   'Catch, then throw to the infielder with **hands up** (the cutoff).'],
+  tip:'Get behind the ball, then step forward. A throw while moving forward is stronger.'},
+ {id:'single',tab:'Ground ball',title:'Ground ball through the infield',when:'A ground ball gets past the infield. The runner on first is going to second.',me:'LF',runners:['1'],
+  arrows:[hit(['H',[58,84]]),rnr(['B1','B2']),run(['LF',[58,84]]),thr([[58,84],'SS'])],
+  steps:['**Run hard** to the ball. Do not wait for it.',
+   'Get in front. Put a **knee down** behind your glove.',
+   '**Pick it up and throw** to the infielder with hands up. No big heave to a far base.'],
+  tip:'A single should stay a single. Do not let it get past you.'},
+ {id:'backup',tab:'Back up',title:'Back up the infield',when:'Ground ball to third base. The throw goes to first.',me:'LF',
+  arrows:[hit(['H','3B']),thr(['3B','B1'],SIT),run(['LF',[32,102]])],
+  steps:['Ball hit to the **left side?** Run in!',
+   'Get **behind the infielder**, in a straight line with the ball.',
+   'If the ball gets by, **you** stop it. No extra bases.'],
+  tip:'Left fielder backs up third and short. Center backs up second. Right backs up first.'}
+]},
+{id:'CF',ab:'CF',nm:'Center',role:'You are the captain of the outfield. You call off the left and right fielders.',plays:[
+ {id:'gap',tab:'Gap fly ball',title:'Fly ball in the gap',when:'A fly ball is heading between the left fielder and you.',me:'CF',involve:['LF'],
+  arrows:[hit(['H',[78,60]],{arc:1}),run(['CF',[82,60]]),mate(['LF',[62,62]])],
+  steps:['Yell **“I got it!”** the loudest. Center fielder has **priority** over left and right.',
+   '**Run to the ball** with your eyes on it. Get behind it.',
+   'Left and right fielders: **back off** and back up the play.',
+   'Catch with **two hands.** Then throw to the infielder with hands up.'],
+  tip:'The center fielder calls it. Everyone else listens.'},
+ {id:'over',tab:'Over your head',title:'Ball over your head',when:'A deep fly ball is hit over the center fielder.',me:'CF',
+  arrows:[hit(['H',[100,24]],{arc:1}),run(['CF',[100,28]]),thr([[100,28],'2B'])],
+  steps:['**Turn your hips** and sprint to the spot. Do **not** backpedal.',
+   'Take a quick **peek** over your shoulder. Do not stop running.',
+   'Catch it or grab it, then stop and **throw to the relay man** with hands up.'],
+  tip:'Fast outfielders turn and run. Backpedaling makes you fall.'},
+ {id:'thru',tab:'Through the infield',title:'Ground ball through the middle',when:'A ground ball shoots past second base into center field.',me:'CF',
+  arrows:[hit(['H',[112,88]]),rnr(['H','B1']),run(['CF',[110,72]]),thr([[110,72],'2B'])],
+  steps:['**Charge it!** Run hard at the ball.',
+   'Get in front. **Knee down** behind your glove.',
+   'Pick it up and throw to the infielder with **hands up.**'],
+  tip:'Do not let it get by. A ball past you is a triple.'}
+]},
+{id:'RF',ab:'RF',nm:'Right field',role:'Back up first base. Field balls hit down the right side.',plays:[
+ {id:'fly',tab:'Fly ball',title:'Fly ball to you',when:'The batter hits a fly ball to right field.',me:'RF',
+  arrows:[hit(['H',[144,56]],{arc:1}),run(['RF',[146,58]]),thr([[146,58],'2B'])],
+  steps:['Read it off the bat. Over your head or in front? **Take your first step that way.**',
+   '**Run to the spot.** Get behind the ball so you can step forward as you catch.',
+   'Yell **“I got it!”** Glove up, **two hands.**',
+   'Catch, then throw to the infielder with **hands up** (the cutoff).'],
+  tip:'Get behind the ball, then step forward.'},
+ {id:'backup',tab:'Back up 1st',title:'Back up first base',when:'Ground ball to third base. The throw goes to first.',me:'RF',
+  arrows:[hit(['H','3B']),thr(['3B','B1'],SIT),run(['RF',[170,130]])],
+  steps:['Ball hit to the **left side?** The throw goes to first. Run to first base!',
+   'Get **behind the bag**, in line with the throw.',
+   'If the throw gets away, **you** are there to stop it.'],
+  tip:'Right fielder backs up first on every throw to first.'},
+ {id:'line',tab:'Down the line',title:'Ball down the line',when:'A ground ball rolls down the right field line. The batter is going for second.',me:'RF',
+  arrows:[hit(['H',[186,78]]),rnr(['H','B1','B2']),run(['RF',[185,77]]),thr([[185,77],'2B'])],
+  steps:['**Sprint** to the ball. Cut it off before it rolls to the fence.',
+   'Get your body **in front** of it. Knee down.',
+   'Pick it up and throw to the infielder with **hands up** (the relay).'],
+  tip:'Down the line, the runner may try for two or three. Fast hands, quick throw.'}
+]}
+];
+
+/* ---------- state ---------- */
+var state={pos:'ALL',idx:0,mode:'learn',revealed:false};
+var learned={};
+var KEY='9u-defense-learned';
+try{var raw=localStorage.getItem(KEY);if(raw){learned=JSON.parse(raw)||{};}}catch(e){learned={};}
+function saveLearned(){try{localStorage.setItem(KEY,JSON.stringify(learned));}catch(e){}}
+try{
+  var h=(location.hash||'').replace('#','').toUpperCase();
+  for(var i=0;i<POS.length;i++){if(POS[i].id.toUpperCase()===h){state.pos=POS[i].id;}}
+}catch(e){}
+
+function $(id){return document.getElementById(id);}
+function curPos(){for(var i=0;i<POS.length;i++){if(POS[i].id===state.pos)return POS[i];}return POS[0];}
+function key(p,pl){return p.id+':'+pl.id;}
+function fmt(t){return t.replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');}
+function esc(t){return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;');}
+
+/* ---------- field drawing ---------- */
+function pt(p){return Array.isArray(p)?{xy:p,k:'xy'}:{xy:PT[p],k:PLAYERS.indexOf(p)>=0?'pl':'base'};}
+function pathD(a){
+  var r=a.pts.map(pt),last=r.length-1;
+  var pts=r.map(function(o){return o.xy.slice();});
+  var px=r[last-1].xy[0],py=r[last-1].xy[1];
+  var dx=pts[last][0]-px,dy=pts[last][1]-py,L=Math.sqrt(dx*dx+dy*dy)||1,d=SH[r[last].k];
+  pts[last][0]-=dx/L*d;pts[last][1]-=dy/L*d;
+  if(a.arc&&pts.length===2){
+    var x0=pts[0][0],y0=pts[0][1],x1=pts[1][0],y1=pts[1][1];
+    var ddx=x1-x0,ddy=y1-y0,l=Math.sqrt(ddx*ddx+ddy*ddy)||1;
+    var nx=-ddy/l,ny=ddx/l;if(ny>0){nx=-nx;ny=-ny;}
+    var cx=(x0+x1)/2+nx*l*0.28,cy=(y0+y1)/2+ny*l*0.28;
+    return 'M'+x0.toFixed(1)+' '+y0.toFixed(1)+'Q'+cx.toFixed(1)+' '+cy.toFixed(1)+' '+x1.toFixed(1)+' '+y1.toFixed(1);
+  }
+  return 'M'+pts.map(function(p){return p[0].toFixed(1)+' '+p[1].toFixed(1);}).join('L');
+}
+function fieldSVG(play,reveal){
+  var mates={};
+  (play.involve||[]).forEach(function(n){mates[n]=1;});
+  if(reveal){play.arrows.forEach(function(a){if(a.t==='mate'&&PLAYERS.indexOf(a.pts[0])>=0)mates[a.pts[0]]=1;});}
+  var arrows=play.arrows.filter(function(a){return reveal||a.s||a.t==='hit'||a.t==='runner';});
+  var s='<svg viewBox="0 0 200 210" role="img" aria-label="'+esc('Field diagram: '+play.title+'. '+play.when)+'" xmlns="http://www.w3.org/2000/svg">';
+  s+='<defs>';
+  ['hit','run','mate','throw','runner'].forEach(function(k){
+    s+='<marker id="m-'+k+'" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="9" markerHeight="9" markerUnits="userSpaceOnUse" orient="auto"><path class="mk-'+k+'" d="M0 1L9 5L0 9z"/></marker>';
+  });
+  s+='</defs>';
+  s+='<path class="fair" d="M100 170L8 78A130 130 0 0 1 192 78Z"/>';
+  s+='<path class="dirt" d="M100 170L142 128L100 86L58 128Z"/>';
+  s+='<path class="edge" d="M8 78A130 130 0 0 1 192 78"/>';
+  s+='<path class="edge" d="M64 203Q100 209 136 203"/>';
+  s+='<path class="ln" d="M0 70L100 170L200 70"/>';
+  s+='<path class="ln" d="M142 128L100 86L58 128"/>';
+  s+='<circle class="ln" cx="100" cy="130" r="5"/>';
+  ['B1','B2','B3'].forEach(function(b){s+='<rect class="bag" x="-3.5" y="-3.5" width="7" height="7" transform="translate('+PT[b][0]+' '+PT[b][1]+') rotate(45)"/>';});
+  s+='<path class="bag" transform="translate(100 170)" d="M-3.6-3.2H3.6V.4L0 4L-3.6.4Z"/>';
+  (play.runners||[]).forEach(function(n){var b=PT['B'+n];s+='<circle class="rn" cx="'+b[0]+'" cy="'+b[1]+'" r="4.4"/>';});
+  arrows.forEach(function(a){
+    s+='<path class="a a-'+a.t+'" d="'+pathD(a)+'" marker-end="url(#m-'+a.t+')"/>';
+  });
+  PLAYERS.forEach(function(n){
+    var me=play.me===n,cls='pl'+(me?' me':(mates[n]?' mate':''));
+    s+='<g class="'+cls+'" transform="translate('+PT[n][0]+' '+PT[n][1]+')">';
+    if(me)s+='<circle class="ring" r="13.5"/>';
+    s+='<circle class="pc" r="'+(me?9.5:8)+'"/><text class="ptx">'+n+'</text></g>';
+  });
+  return s+'</svg>';
+}
+
+/* ---------- render ---------- */
+function totalPlays(){var n=0;POS.forEach(function(p){n+=p.plays.length;});return n;}
+function learnedCount(p){var n=0;p.plays.forEach(function(pl){if(learned[key(p,pl)])n++;});return n;}
+function render(){
+  var p=curPos(),play=p.plays[state.idx];
+  var quiz=state.mode==='quiz',reveal=!quiz||state.revealed;
+  $('m-learn').setAttribute('aria-pressed',String(!quiz));
+  $('m-quiz').setAttribute('aria-pressed',String(quiz));
+  var all=0;POS.forEach(function(q){all+=learnedCount(q);});
+  var tot=totalPlays();
+  $('progText').textContent=all+' of '+tot+' plays learned';
+  $('progBar').style.width=Math.round(all/tot*100)+'%';
+
+  $('posGrid').innerHTML=POS.map(function(q){
+    var c=learnedCount(q),n=q.plays.length;
+    return '<button type="button" data-pos="'+q.id+'" aria-pressed="'+(q.id===p.id)+'" aria-label="'+q.nm+', '+c+' of '+n+' learned"><span class="ab">'+q.ab+'</span><span class="nm">'+q.nm+'</span><span class="ct">'+(c===n?'✓ ':'')+c+'/'+n+'</span></button>';
+  }).join('');
+  $('role').textContent=p.role;
+  $('tabs').innerHTML=p.plays.map(function(pl,i){
+    return '<button type="button" role="tab" data-i="'+i+'" aria-selected="'+(i===state.idx)+'">'+pl.tab+(learned[key(p,pl)]?' ✓':'')+'</button>';
+  }).join('');
+
+  $('count').textContent='Play '+(state.idx+1)+' of '+p.plays.length;
+  $('title').textContent=play.title;
+  $('when').innerHTML='<span class="lab">Situation</span>'+esc(play.when);
+  $('field').innerHTML=fieldSVG(play,reveal);
+  $('quiz').hidden=!(quiz&&!state.revealed);
+  $('answer').hidden=!reveal;
+  $('tip').hidden=!reveal;
+  $('steps').innerHTML=play.steps.map(function(t){return '<li><span>'+fmt(t)+'</span></li>';}).join('');
+  $('tip').innerHTML='<span class="lab">Remember</span>'+esc(play.tip);
+  var isL=!!learned[key(p,play)];
+  var lb=$('learned');lb.setAttribute('aria-pressed',String(isL));
+  lb.textContent=isL?'✓ I know this play':'I know this play';
+  $('prev').disabled=state.idx===0;
+  $('next').disabled=state.idx===p.plays.length-1;
+}
+function goPlay(){
+  var el=$('play');
+  var reduce=window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  try{el.scrollIntoView({behavior:reduce?'auto':'smooth',block:'start'});}catch(e){}
+}
+
+/* ---------- events ---------- */
+$('posGrid').addEventListener('click',function(e){
+  var b=e.target.closest('button[data-pos]');if(!b)return;
+  state.pos=b.getAttribute('data-pos');state.idx=0;state.revealed=false;render();
+  try{history.replaceState(null,'','#'+state.pos);}catch(err){}
+});
+$('tabs').addEventListener('click',function(e){
+  var b=e.target.closest('button[data-i]');if(!b)return;
+  state.idx=parseInt(b.getAttribute('data-i'),10);state.revealed=false;render();
+});
+$('m-learn').addEventListener('click',function(){state.mode='learn';state.revealed=false;render();});
+$('m-quiz').addEventListener('click',function(){state.mode='quiz';state.revealed=false;render();});
+$('reveal').addEventListener('click',function(){state.revealed=true;render();});
+$('prev').addEventListener('click',function(){if(state.idx>0){state.idx--;state.revealed=false;render();goPlay();}});
+$('next').addEventListener('click',function(){var p=curPos();if(state.idx<p.plays.length-1){state.idx++;state.revealed=false;render();goPlay();}});
+$('learned').addEventListener('click',function(){
+  var p=curPos(),k=key(p,p.plays[state.idx]);
+  if(learned[k]){delete learned[k];}else{learned[k]=1;}
+  saveLearned();render();
+});
+
+render();
+})();
+</script>
+</body>
+</html>

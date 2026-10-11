@@ -163,7 +163,7 @@ button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
     </div>
   </article>
 
-  <p class="note">Leagues are different. If your coach teaches a play another way, do it your coach’s way. Stealing plays assume runners are allowed to steal.</p>
+  <p class="note">Built from HABA’s 9U League Rules (4/7/26): no bunting, no lead-offs, steals of 2nd and 3rd only after the pitch crosses the plate, and a runner on third can’t score on a passed ball. If your coach teaches a play another way, do it your coach’s way.</p>
 </div>
 
 <script>
@@ -188,7 +188,7 @@ var POS=[
 {id:'ALL',ab:'ALL',nm:'Everyone',role:'Nine players, one team. These rules are for all of you.',plays:[
  {id:'align',tab:'Where we stand',title:'Where everybody stands',when:'Before the pitch. Every player is in a starting spot.',
   arrows:[],
-  steps:['Know your spot. Your coach may move you a little, but this is the **starting place**.',
+  steps:['Know your spot. HABA rules: **two infielders on each side** of the line from home to center field, and outfielders **on the grass**, at least 10 feet back from the dirt.',
    'Get in **ready position**: feet wide, knees bent, glove low and out front.',
    'Say the **outs** and where you will throw. Example: “One out, throw to first.”',
    'As the pitcher throws, take a **small hop** so your feet are already moving when the ball is hit.'],
@@ -221,12 +221,13 @@ var POS=[
    'Glove up! Yell **“Bag!”** so the first baseman knows you are there.',
    '**Catch** the ball, then touch the bag with your foot.'],
   tip:'Ground ball to the right side means the pitcher runs to first. Every time.'},
- {id:'wild',tab:'Wild pitch',title:'Cover home on a wild pitch',when:'The pitch gets past the catcher. A runner is on third base.',me:'P',involve:['C'],runners:['3'],
-  arrows:[hit(['P',[76,203]]),rnr(['B3','H']),mate(['C',[80,200]]),run(['P','H']),thr([[80,200],'H'])],
-  steps:['Run to **home plate** right away. Do not wait to see what happens.',
-   'Stand at the plate with your **glove up** as a target.',
-   'Catch the catcher’s throw. **Tag the runner** low, on his legs, as he slides.'],
-  tip:'The catcher chases the ball. The pitcher covers home. Never both chase the ball.'},
+ {id:'throwdown',tab:'Throw down',title:'Back up home on a steal',when:'Runners on first and third. The runner on first steals second. The runner on third can run home on any throw.',me:'P',involve:['SS'],runners:['1','3'],
+  arrows:[hit(['P','C']),rnr(['B1','B2']),rnr(['B3','H']),thr(['C','B2'],SIT),mate(['SS','B2']),thr(['B2','H']),run(['P',[128,166],[110,202]])],
+  steps:['In HABA 9U a runner on third **can score on a throw down.** So the play can go home.',
+   'Watch the throw. If the shortstop **throws home,** run **behind home plate.**',
+   'Stand in a straight line with the throw, **far enough back** to catch a bad one.',
+   'The catcher takes the throw at the plate. You are the safety net.'],
+  tip:'Throw goes to a base and the runner on third may go. The pitcher backs up home.'},
  {id:'backhome',tab:'Back up home',title:'Back up the throw home',when:'Base hit to left field. The runner on second is racing for home.',me:'P',runners:['2'],
   arrows:[hit(['H','LF'],{arc:1}),rnr(['B2','B3','H']),thr(['LF','H'],SIT),run(['P',[118,200]])],
   steps:['The ball goes to the outfield and **you move too**. Do not just watch.',
@@ -236,19 +237,20 @@ var POS=[
   tip:'Pitchers are the best back-up men. Make it your job.'}
 ]},
 {id:'C',ab:'C',nm:'Catcher',role:'You see the whole field. Talk loud and boss the infield.',plays:[
- {id:'block',tab:'Block it',title:'Pitch in the dirt',when:'The pitch bounces in front of the plate. A runner is on third.',me:'C',runners:['3'],
-  arrows:[hit(['P',[100,164]]),rnr(['B3','H'])],
+ {id:'block',tab:'Block it',title:'Pitch in the dirt',when:'The pitch bounces in front of the plate. A runner is on second.',me:'C',runners:['2'],
+  arrows:[hit(['P',[100,164]]),rnr(['B2','B3'])],
   steps:['Drop to your **knees**, fast. Knees go wide in the dirt.',
    'Put your glove **between your knees**, fingers down, so nothing sneaks through.',
    '**Chin down**, round your shoulders, chest over the ball.',
    'Keep the ball **in front of you.** Then find it and look at the runner.'],
   tip:'You are not trying to catch it. You are trying to block it.'},
- {id:'passed',tab:'Passed ball',title:'Ball gets by you',when:'The ball rolls to the backstop. A runner is on third.',me:'C',involve:['P'],runners:['3'],
-  arrows:[hit(['P',[76,203]]),rnr(['B3','H']),run(['C',[80,200]]),thr([[80,200],'H']),mate(['P','H'])],
+ {id:'passed',tab:'Passed ball',title:'Ball gets by you',when:'The ball rolls to the backstop. A runner is on third.',me:'C',runners:['3'],
+  arrows:[hit(['P',[76,203]]),run(['C',[80,200]])],
   steps:['**Pop up** and spin toward the ball. Find it fast.',
    'Run to it and pick it up with **two hands**.',
-   'Flip or throw to the **pitcher at home plate.** Yell “Here it comes!”'],
-  tip:'The pitcher covers home. The catcher gets the ball. Do not both go to the ball.'},
+   'Look at third base. In HABA 9U the runner **cannot score on a passed ball.**',
+   '**Do not throw** to a base unless you have to. A throw down to any base lets him run home.'],
+  tip:'Stay calm. Get the ball, look at the runner, and hold it.'},
  {id:'pop',tab:'Foul pop-up',title:'Foul pop-up',when:'The batter hits the ball straight up behind the plate.',me:'C',
   arrows:[hit(['H',[128,152]],{arc:1}),run(['C',[124,156]])],
   steps:['Pop up! **Take your mask off** and toss it away from where you are running.',
@@ -259,9 +261,10 @@ var POS=[
  {id:'steal',tab:'Steal of 2nd',title:'Runner steals second',when:'The runner on first takes off as the pitch is thrown.',me:'C',involve:['SS'],runners:['1'],
   arrows:[hit(['P','C']),rnr(['B1','B2']),thr(['C','B2']),mate(['SS','B2'])],
   steps:['**Catch the pitch first.** No catch, no throw.',
+   'Check third base. Runner there? **Any throw lets him run home.** Know your plan.',
    '**Pop up**, turn, and step toward second.',
    'Throw hard **at the bag**. Low is best, so the tag is easy.'],
-  tip:'Quick feet and a quick throw beat a big arm.'}
+  tip:'Quick feet and a quick throw beat a big arm. Runner on third too? Talk with your coach about the plan.'}
 ]},
 {id:'1B',ab:'1B',nm:'1st base',role:'You are the target. Big glove, foot on the bag.',plays:[
  {id:'target',tab:'Ball to others',title:'Ground ball to someone else',when:'Ground ball to the shortstop. You hold the target.',me:'1B',
@@ -315,7 +318,8 @@ var POS=[
   arrows:[hit(['P','C']),rnr(['B1','B2']),thr(['C','B2'],SIT),run(['2B','B2'])],
   steps:['Run to second as the runner takes off. **Get there early.**',
    'Put your glove **down at the bag**, where the runner will slide.',
-   '**Catch** the ball, then let the runner slide **into** your glove. Hold it there.'],
+   '**Catch** the ball, then let the runner slide **into** your glove. Hold it there.',
+   'Look at third. If a runner is running home, **throw home.**'],
   tip:'Not covering? Run behind second to stop wild throws.'}
 ]},
 {id:'SS',ab:'SS',nm:'Shortstop',role:'You are the infield captain. Cover second and make the long throw.',plays:[
@@ -343,7 +347,8 @@ var POS=[
   arrows:[hit(['P','C']),rnr(['B1','B2']),thr(['C','B2'],SIT),run(['SS','B2'])],
   steps:['Run to second as the runner takes off. **Get there early.**',
    'Put your glove **down at the bag**, where the runner will slide.',
-   '**Catch** the ball, then let the runner slide **into** your glove. Hold it there.'],
+   '**Catch** the ball, then let the runner slide **into** your glove. Hold it there.',
+   'Look at third. If a runner is running home, **throw home.**'],
   tip:'Not covering? Run behind second to stop wild throws.'}
 ]},
 {id:'3B',ab:'3B',nm:'3rd base',role:'Hard hits and a long throw. Stay low and keep the ball in front.',plays:[
@@ -353,7 +358,7 @@ var POS=[
    'Keep the ball **in front of you.** If it bounces off, pick it up.',
    '**Step toward first** and throw hard across the diamond. Throw over the top.'],
   tip:'Bobbled it? Stay calm and pick it up. Do not rush the throw.'},
- {id:'slow',tab:'Slow roller',title:'Slow roller or bunt',when:'A bunt or slow roller dribbles toward third.',me:'3B',
+ {id:'slow',tab:'Slow roller',title:'Slow roller',when:'A slow roller dribbles toward third.',me:'3B',
   arrows:[hit(['H',[74,138]]),rnr(['H','B1']),run(['3B',[70,134]]),thr([[74,138],'B1'])],
   steps:['**Charge it!** Run at the ball as soon as you see it is slow.',
    'Scoop it with your glove and bare hand **together.**',
